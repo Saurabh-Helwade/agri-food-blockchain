@@ -16,6 +16,7 @@ const Component = ({
     const fetchUser = async () => {
       const response = await axios.get("/api/auth/verifytoken");
       if (response.data) {
+        console.log(response.data);
         setUser(response.data.user);
       }
     };

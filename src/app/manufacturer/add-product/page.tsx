@@ -171,18 +171,9 @@ const ManufacturerProductPage = () => {
               <option value="Fruit" />
               <option value="Grain" />
               <option value="Dairy" />
-              <option value="Meat" />
-              <option value="Beverage" />
-              <option value="Snack" />
-              <option value="Condiment" />
-              <option value="Seafood" />
-              <option value="Herb" />
               <option value="Spice" />
               <option value="Nut" />
-              <option value="Seed" />
-              <option value="Mushroom" />
               <option value="Flower" />
-              <option value="Root" />
             </datalist>
           </fieldset>
           <fieldset className="fieldset w-full">

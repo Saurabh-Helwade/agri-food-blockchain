@@ -30,7 +30,7 @@ const Component = ({
           content="AgriFood is a blockchain-based agri-food supply chain platform that ensures transparency, traceability, and trust across farmers, suppliers, transporters, and consumers. Track every product from farm to fork with secure smart contracts and real-time updates."
         />
       </head>
-      <body className={`antialiased`}>
+      <body className={`antialiased vsc-initialized`}>
         <Toaster />
         <SideNav>{children}</SideNav>
       </body>

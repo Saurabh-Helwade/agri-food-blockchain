@@ -1,79 +1,80 @@
 "use client";
-import { Ride } from "@/types/Ride";
-import { IconCirclePlus } from "@tabler/icons-react";
-import axios from "axios";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { useAuth } from "@/context/AuthProvider";
 
-const PublishRidePage = () => {
-  const [rides, setRides] = useState<Ride[]>([]);
-  const fetchRides = async () => {
-    const res = await axios.get("/api/rides");
-    setRides(res.data.rides);
+interface Manufacturer {
+  name: string;
+  email: string;
+  contact: string;
+  profileImage: string;
+  address: {
+    address: string;
+    district: string;
+    state: string;
+    pincode: string;
   };
+}
+
+const ManufacturerAccountPage = () => {
+  const { user } = useAuth(); // user._id should be available
+  const [manufacturer, setManufacturer] = useState<Manufacturer | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    fetchRides();
-  }, []);
+    const fetchManufacturer = async () => {
+      if (!user?._id) return;
+
+      console.log("Fetching manufacturer details for ID:", user._id);
+
+      try {
+        const res = await axios.get(`/api/manufacturer/account?id=${user._id}`);
+        setManufacturer(res.data);
+      } catch (error) {
+        console.error("Failed to fetch manufacturer details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManufacturer();
+  }, [user]);
+
+  if (!user)
+    return (
+      <p className="text-center text-error">
+        Please login to view your account details.
+      </p>
+    );
+
+  if (loading) return <p className="text-center">Loading...</p>;
+
+  if (!manufacturer)
+    return <p className="text-center text-error">Details not found.</p>;
+
   return (
-    <>
-      <h1 className="text-4xl font-bold mb-6 text-center uppercase">
-        Ride Managements
-      </h1>
-      <Link
-        href={"/user/publish-a-ride"}
-        className="btn btn-primary btn-outline w-full mb-4"
-      >
-        Publish A Ride <IconCirclePlus size={18} />{" "}
-      </Link>
-      <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-300">
-        <table className="table table-zebra">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Title</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Car Name</th>
-              <th>Car Number</th>
-              <th>Car Capacity</th>
-              <th>Price Per Seat</th>
-              <th>Status</th>
-              <th>Is Full</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rides.length !== 0 ? (
-              rides.map((ride: Ride, index: number) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{ride.title}</td>
-                  <td>{new Date(ride.date).toLocaleDateString()}</td>
-                  <td>{ride.time}</td>
-                  <td>{ride.from}</td>
-                  <td>{ride.to}</td>
-                  <td>{ride.car.name}</td>
-                  <td>{ride.car.number}</td>
-                  <td>{ride.car.capacity}</td>
-                  <td>{ride.pricePerSeat}</td>
-                  <td>{ride.status}</td>
-                  <td>{ride.isFull ? "Yes" : "No"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={12} className="text-center">
-                  No Rides Found Publish
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="max-w-2xl mx-auto bg-base-300 rounded-lg p-6 shadow-md">
+      <h1 className="text-3xl font-bold text-center mb-6 uppercase">My Account</h1>
+      <div className="flex flex-col items-center gap-4">
+        <img
+          src={manufacturer.profileImage}
+          alt={manufacturer.name}
+          className="w-32 h-32 rounded-full object-cover border"
+        />
+        <p className="text-xl font-semibold">{manufacturer.name}</p>
+        <p>Email: {manufacturer.email}</p>
+        <p>Contact: {manufacturer.contact}</p>
+        <div className="text-center mt-4">
+          <h2 className="text-lg font-bold">Address</h2>
+          <p>{manufacturer.address.address}</p>
+          <p>
+            {manufacturer.address.district}, {manufacturer.address.state} -{" "}
+            {manufacturer.address.pincode}
+          </p>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default PublishRidePage;
+export default ManufacturerAccountPage;

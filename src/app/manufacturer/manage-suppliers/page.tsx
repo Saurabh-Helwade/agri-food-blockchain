@@ -8,9 +8,9 @@ import toast from "react-hot-toast";
 
 const ManufacturerProductPage = () => {
   const { user } = useAuth();
-  console.log(user);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const fetchSuppilers = async () => {
+
+  const fetchSuppliers = async () => {
     try {
       const res = await axios.get("/api/manufacturer/suppliers");
       setSuppliers(res.data);
@@ -19,9 +19,11 @@ const ManufacturerProductPage = () => {
       toast.error("Failed to fetch suppliers");
     }
   };
+
   useEffect(() => {
-    fetchSuppilers();
+    fetchSuppliers();
   }, []);
+
   const handleHireSupplier = async (supplierId: string) => {
     try {
       const res = axios.post("/api/manufacturer/hire-supplier", {
@@ -32,11 +34,14 @@ const ManufacturerProductPage = () => {
         success: "Supplier hired successfully",
         error: "Failed to hire supplier",
       });
+      await res; // Wait for the promise to resolve before refetching
+      fetchSuppliers();
     } catch (error) {
       console.error(error);
       toast.error("Failed to hire supplier");
     }
   };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -46,6 +51,7 @@ const ManufacturerProductPage = () => {
       </div>
     );
   }
+
   return (
     <>
       <h1 className="text-4xl font-bold mb-6 text-center uppercase">
@@ -86,17 +92,16 @@ const ManufacturerProductPage = () => {
                     </div>
                   </td>
                   <td>{supplier.email}</td>
-                  <td>{supplier.transporter.length || "NA"}</td>
+                  <td>{supplier.transporter?.length || "NA"}</td>
                   <th>
-                    {supplier.manufacturer._id !== null ? (
-                      <button className="btn btn-primary">Hired</button>
+                    {supplier.manufacturer?._id ? (
+                      <button className="btn btn-primary" disabled>
+                        Hired
+                      </button>
                     ) : (
                       <button
                         className="btn btn-primary"
-                        onClick={() => {
-                          handleHireSupplier(supplier._id!);
-                          fetchSuppilers();
-                        }}
+                        onClick={() => handleHireSupplier(supplier._id!)}
                       >
                         Hire
                       </button>

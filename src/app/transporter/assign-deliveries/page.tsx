@@ -14,16 +14,19 @@ const AssignDeliveries = () => {
       console.error(err);
     }
   };
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      const res = axios.put(
+      // Await the PUT request properly
+      const res = await axios.put(
         `/api/transporters/updateOrder?orderId=${orderId}&deliveryStatus=${newStatus}`
       );
-      toast.promise(res, {
+
+      toast.promise(Promise.resolve(res), {
         loading: "Updating status...",
         success: () => {
           fetchOrders();
@@ -33,6 +36,7 @@ const AssignDeliveries = () => {
       });
     } catch (err) {
       console.error("Failed to update status:", err);
+      toast.error("Failed to update status.");
     }
   };
 
@@ -54,6 +58,13 @@ const AssignDeliveries = () => {
             </tr>
           </thead>
           <tbody>
+            {orders.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center py-4">
+                  No deliveries assigned yet.
+                </td>
+              </tr>
+            )}
             {orders.map((order: any, index: number) => (
               <tr key={order._id}>
                 <td>{index + 1}</td>
@@ -71,7 +82,7 @@ const AssignDeliveries = () => {
                       className="select select-sm select-bordered"
                       value={order.deliveryStatus}
                       onChange={(e) =>
-                        handleStatusChange(order.orderId, e.target.value)
+                        handleStatusChange(order._id, e.target.value)
                       }
                     >
                       <option value="pending">Pending</option>
@@ -86,13 +97,6 @@ const AssignDeliveries = () => {
                 </td>
               </tr>
             ))}
-            {orders.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center py-4">
-                  No deliveries assigned yet.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>

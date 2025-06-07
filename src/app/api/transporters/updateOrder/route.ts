@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Order from "@/models/Order";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -5,6 +6,7 @@ export async function PUT(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const orderId = searchParams.get("orderId");
   const deliveryStatus = searchParams.get("deliveryStatus");
+
   try {
     if (!orderId || !deliveryStatus) {
       return NextResponse.json(
@@ -13,10 +15,13 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const order = await Order.findOneAndUpdate({
-      orderId,
-      deliveryStatus,
-    });
+    const objectId = new mongoose.Types.ObjectId(orderId);
+
+    const order = await Order.findOneAndUpdate(
+      { _id: objectId },
+      { deliveryStatus },
+      { new: true }
+    );
 
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });

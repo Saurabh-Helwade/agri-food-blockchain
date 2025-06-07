@@ -8,7 +8,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     icon: <IconHome width="24" height="24" />,
   },
   {
-    title: "Assing Deliveries",
+    title: "Assigning Deliveries",
     path: "/transporter/assign-deliveries",
     icon: <IconTruckLoading width="24" height="24" />,
   },

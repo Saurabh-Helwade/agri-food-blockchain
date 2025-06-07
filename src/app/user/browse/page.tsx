@@ -165,7 +165,7 @@ const UserPage = () => {
                   </button>
                   <button
                     className="btn btn-primary"
-                    onClick={() => buyNow(cart)}
+                    onClick={() => buyNow([{ productId: product, quantity: 1 }])}
                   >
                     Buy Now
                   </button>

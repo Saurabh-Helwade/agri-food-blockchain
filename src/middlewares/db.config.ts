@@ -1,6 +1,7 @@
 import Manufacturer from "@/models/Manufacturer";
 import Product from "@/models/Product";
 import Supplier from "@/models/Supplier";
+import Transporter from "@/models/Transporter";
 import mongoose from "mongoose";
 
 // Database Connection
@@ -15,6 +16,7 @@ const dbConfig = async () => {
     Product;
     Manufacturer;
     Supplier;
+    Transporter;
     connection.on("error", (error) => {
       console.log("Error: ", error);
     });

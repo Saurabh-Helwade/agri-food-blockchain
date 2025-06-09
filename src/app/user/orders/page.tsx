@@ -16,10 +16,18 @@ const OrderPage = () => {
     }
   };
 
-  const cancelOrder = async (orderId: string) => {
+  const cancelOrder = async (orderId: string, paymentStatus: string) => {
     try {
       await axios.delete(`/api/user/orders/details?id=${orderId}`);
-      toast.success("Order cancelled successfully");
+      
+      if (paymentStatus === "completed") {
+        toast.success(
+          "Order cancelled successfully. Amount will be refunded within 2-3 business days to original payment mode."
+        );
+      } else {
+        toast.success("Order cancelled successfully.");
+      }
+
       fetchOrders(); // Refresh the order list
     } catch (error) {
       toast.error("Failed to cancel order");
@@ -68,7 +76,7 @@ const OrderPage = () => {
                     {isCancellable ? (
                       <button
                         className="btn btn-error w-full"
-                        onClick={() => cancelOrder(order._id)}
+                        onClick={() => cancelOrder(order._id, order.paymentStatus)}
                       >
                         Cancel Order
                       </button>

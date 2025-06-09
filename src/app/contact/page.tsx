@@ -16,6 +16,18 @@ const ContactPage = () => {
           <IconUser size={28} className="text-secondary" />
           <span className="text-lg">Saurabh Helwade</span>
         </div>
+                <div className="flex items-center gap-3">
+          <IconUser size={28} className="text-secondary" />
+          <span className="text-lg">Omkar Walunj</span>
+        </div>
+                <div className="flex items-center gap-3">
+          <IconUser size={28} className="text-secondary" />
+          <span className="text-lg">Mitesh Barve</span>
+        </div>
+                <div className="flex items-center gap-3">
+          <IconUser size={28} className="text-secondary" />
+          <span className="text-lg">Yash Shinde</span>
+        </div>
 
         <div className="flex items-center gap-3">
           <IconMail size={28} className="text-secondary" />

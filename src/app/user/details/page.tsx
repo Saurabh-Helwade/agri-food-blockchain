@@ -1,6 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import Razorpay from "razorpay";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthProvider";
@@ -47,73 +48,58 @@ const DetailsPage = () => {
   };
 
   const handlePayNow = async () => {
-    try {
-      const contract = await getContract();
-      if (!contract) {
-        toast.error("Failed to fetch contract");
-        return;
-      }
-
-      const centralKey = await axios.get(
-        `/api/user/orders/centralKey?id=${orderId}`
-      );
-
-      const transaction = await contract.setCentralKey(centralKey.data);
-      const transactionHash = await transaction.wait();
-
-      toast.success(
-        "Blockchain key set! Tx Hash: " + transactionHash.transactionHash
-      );
-
-      if (!orderId) {
-        toast.error("Order ID is required.");
-        return;
-      }
-
-      toast.loading("Processing payment...");
-      const res = await axios.post(`/api/user/orders/pay?orderId=${orderId}`);
-
-      const options = {
-        key: "rzp_test_cXJvckaWoN0JQx",
-        amount: res.data.amount,
-        currency: "INR",
-        name: "AgriFood",
-        description: "Order Payment",
-        image: "/bg.png",
-        order_id: res.data.orderId,
-        callback_url: `/api/user/orders/verify?orderId=${orderId}`,
-        prefill: {
-          name: user?.name,
-          email: user?.email,
-          contact: user?.contact,
-        },
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.on("payment.failed", function (response: any) {
-        alert("Payment failed: " + response.error.description);
-      });
-
-      paymentObject.open();
-      toast.dismiss();
-    } catch (err) {
-      console.error("Payment failed:", err);
-      toast.dismiss();
-      toast.error("Payment failed. Try again.");
+    const contract = await getContract();
+    if (!contract) {
+      toast.error("Failed to fetch contract");
+      return;
     }
+    const centralKey = await axios.get(
+      `/api/user/orders/centralKey?id=${orderId}`
+    );
+    const transaction = await contract.setCentralKey(centralKey.data);
+    const transactionHash = await transaction.wait();
+    toast.success(
+      "Blockchain key set! Tx Hash: "  + transactionHash.transactionHash
+    );
+    console.log(transactionHash);
+    if (!orderId) {
+      toast.error("Order ID is required.");
+      return;
+    }
+    toast.loading("Processing payment...");
+    const res = await axios.post(`/api/user/orders/pay?orderId=${orderId}`);
+    const options = {
+      key: "rzp_test_cXJvckaWoN0JQx",
+      amount: res.data.amount,
+      currency: "INR",
+      name: "AgriFood",
+      description: "Test Transaction",
+      image: "/bg.png",
+      order_id: res.data.orderId,
+      callback_url: "http://localhost:3000/user/details" + `?id=${orderId}`,
+      prefill: {
+        name: user?.name,
+        email: user?.email,
+        contact: user?.contact,
+      },
+    };
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.on("payment.failed", function (response: any) {
+      alert(response.error.description);
+    });
+    paymentObject.open();
+    toast.dismiss();
   };
 
   useEffect(() => {
     fetchOrderDetails();
   }, []);
-
   if (!user)
     return (
       <p className="text-center text-error">
         Please login to view order details.
       </p>
     );
-
   return (
     <>
       <Script
@@ -177,30 +163,24 @@ const DetailsPage = () => {
                   alt={productItem.product.name}
                   className="w-16 h-16 object-cover rounded"
                 />
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold">{productItem.product.name}</p>
-                  <p>Price: ₹{productItem.product.price}</p>
-                  <p>Quantity: {productItem.quantity}</p>
+                  <p className="text-sm text-base-content/70">
+                    ₹{productItem.product.price} x {productItem.quantity}
+                  </p>
                 </div>
               </li>
             ))}
           </ul>
 
-          {orderDetails.paymentStatus !== "completed" && (
+          {orderDetails.paymentStatus === "pending" && (
             <button
-              onClick={() => {
-                if (
-                  confirm("Are you sure you want to proceed with the payment?")
-                ) {
-                  handlePayNow();
-                }
-              }}
-              className="btn btn-primary mt-4"
+              onClick={handlePayNow}
+              className="btn btn-primary mt-6 w-full"
             >
               Pay Now
             </button>
           )}
-
           {orderDetails.paymentStatus === "completed" && (
             <p className="text-success font-medium mt-4">
               Payment has been completed.
